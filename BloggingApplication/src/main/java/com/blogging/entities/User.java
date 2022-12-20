@@ -1,16 +1,12 @@
 package com.blogging.entities;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.Transient;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsPasswordService;
-import org.springframework.security.core.userdetails.UserDetailsService;
 
 import javax.persistence.*;
 import java.util.*;
@@ -31,6 +27,7 @@ public class User implements UserDetails {
     @Column(name = "user_name", nullable = false, length = 100)
     private String name;
 
+    @Column(nullable = false,unique = true)
     private String email;
 
     private String password;

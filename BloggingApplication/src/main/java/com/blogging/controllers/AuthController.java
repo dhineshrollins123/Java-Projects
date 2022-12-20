@@ -1,10 +1,12 @@
 package com.blogging.controllers;
 
+import com.blogging.entities.User;
 import com.blogging.payloads.JwtAuthRequest;
 import com.blogging.payloads.JwtAuthResponse;
 import com.blogging.payloads.UserDto;
 import com.blogging.security.JwtTokenHelper;
 import com.blogging.services.UserService;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
 import java.nio.file.AccessDeniedException;
 
 @RestController
@@ -36,14 +39,19 @@ public class AuthController {
     @Autowired
     private AuthenticationManager authenticationManager;
 
+    @Autowired
+    private ModelMapper mapper;
+
     @PostMapping("/login")
-    public ResponseEntity<JwtAuthResponse> createToken(@RequestBody JwtAuthRequest request) throws AccessDeniedException {
+    public ResponseEntity<JwtAuthResponse> createToken(@Valid @RequestBody JwtAuthRequest request) throws AccessDeniedException {
 
         authenticateRequest(request.getUserName(),request.getPassword());
 
         UserDetails userDetails = userDetailsService.loadUserByUsername(request.getUserName());
         String token = jwtTokenHelper.generateToken(userDetails);
-        JwtAuthResponse response = new JwtAuthResponse(token);
+
+        User user = (User) userDetails;
+        JwtAuthResponse response = new JwtAuthResponse(token,mapper.map(user,UserDto.class));
 
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.set("X-Dk-Access-Token",token);
@@ -51,10 +59,14 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<UserDto> registerUser(@RequestBody UserDto userDto) {
+    public ResponseEntity<UserDto> registerUser(@Valid @RequestBody UserDto userDto) {
 
-        UserDto user = userService.registerNewUser(userDto);
-        return new ResponseEntity<>(user,HttpStatus.OK);
+        try {
+            UserDto user = userService.registerNewUser(userDto);
+            return new ResponseEntity<>(user, HttpStatus.OK);
+        }catch (Exception exception){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
     }
 
     private void authenticateRequest(String username, String password) throws AccessDeniedException {

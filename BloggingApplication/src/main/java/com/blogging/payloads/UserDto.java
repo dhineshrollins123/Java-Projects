@@ -2,10 +2,12 @@ package com.blogging.payloads;
 
 import com.blogging.entities.Comment;
 import com.blogging.entities.Role;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import javax.persistence.Column;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
@@ -22,13 +24,15 @@ public class UserDto {
     private int userId;
 
     @NotEmpty
+    @Size(min = 5,message = "Username must be min of 5 characters ")
     private String name;
 
-    @Email(message = "EMail must be valid")
+    @NotEmpty(message = "Email should not be empty")
+    @Email(message = "Email must be valid")
     private String email;
 
-    @NotEmpty
-    @Size(min = 8,message = "password must be minimum 8 characters")
+    @NotEmpty(message = "Password should not be empty")
+    @Size(min = 8,message = "Password must be minimum 8 characters")
     private String password;
 
     @NotEmpty
@@ -37,4 +41,8 @@ public class UserDto {
     private List<CommentDto> userComments = new ArrayList<>();
     private Set<RoleDto> roles = new HashSet<>();
 
+    @JsonIgnore
+    public String getPassword() {
+        return password;
+    }
 }
