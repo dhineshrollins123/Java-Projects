@@ -26,7 +26,8 @@ public class FileServiceImpl implements FileService {
         System.out.println("FileName1 : "+fileName1);
 
         //fullpath
-        String filePath = path + File.separator + fileName1;
+       // String filePath = path + File.separator + fileName1;
+        String filePath = path + File.separator + name;
 
         System.out.println("File separator : "+File.separator);
         System.out.println("full path : "+filePath);

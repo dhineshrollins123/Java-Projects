@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 import javax.persistence.Column;
 import javax.validation.constraints.Email;
@@ -20,6 +21,7 @@ import java.util.Set;
 @Getter
 @Setter
 @NoArgsConstructor
+@ToString
 public class UserDto {
 
     private int userId;

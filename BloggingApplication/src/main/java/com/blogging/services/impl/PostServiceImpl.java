@@ -1,11 +1,14 @@
 package com.blogging.services.impl;
 
 import com.blogging.entities.Category;
+import com.blogging.entities.Comment;
 import com.blogging.entities.Post;
 import com.blogging.entities.User;
 import com.blogging.exceptions.ResourceNotFoundException;
+import com.blogging.payloads.CommentDto;
 import com.blogging.payloads.PostDto;
 import com.blogging.payloads.PostPagingResponse;
+import com.blogging.payloads.UserDto;
 import com.blogging.repositories.CategoryRepository;
 import com.blogging.repositories.PostRepository;
 import com.blogging.repositories.UserRepository;
@@ -33,7 +36,7 @@ public class PostServiceImpl implements PostService {
     private ModelMapper modelMapper;
 
     @Override
-    public PostDto createPost(PostDto postDto,Integer userId,Integer categoryId) {
+    public PostDto createPost(PostDto postDto, Integer userId, Integer categoryId) {
 
         User user = userRepository.findById(userId).orElseThrow(()
                 -> new ResourceNotFoundException("User", "user id", userId));
@@ -63,21 +66,41 @@ public class PostServiceImpl implements PostService {
         post.setAddedDate(LocalDateTime.now());
         post.setImageName(postDto.getImageName());
 
+        Category category = categoryRepository.findById(postDto.getCategory().getCategoryId()).get();
+        post.setCategory(category);
+
         Post updatedPost = postRepository.save(post);
-        return modelMapper.map(updatedPost,PostDto.class);
+        return modelMapper.map(updatedPost, PostDto.class);
     }
 
     @Override
     public PostDto getPostById(Integer postId) {
         Post post = postRepository.findById(postId).orElseThrow(() ->
                 new ResourceNotFoundException("Post", "post id", postId));
-        return modelMapper.map(post,PostDto.class);
+
+        PostDto postDto = modelMapper.map(post, PostDto.class);
+
+        postDto.getPostComments().clear();
+
+        for (Comment comment : post.getPostComments()) {
+            CommentDto commentDto = modelMapper.map(comment, CommentDto.class);
+            UserDto userDto = modelMapper.map(comment.getUser(), UserDto.class);
+            commentDto.setUserDto(userDto);
+
+            postDto.getPostComments().add(commentDto);
+        }
+
+        for (CommentDto comment : postDto.getPostComments()) {
+            System.out.println(" post comment : " + comment.toString());
+        }
+
+        return postDto;
     }
 
     @Override
     public List<PostDto> getAllPosts() {
         return postRepository.findAll().stream()
-                .map(post -> modelMapper.map(post,PostDto.class))
+                .map(post -> modelMapper.map(post, PostDto.class))
                 .collect(Collectors.toList());
     }
 
@@ -111,15 +134,16 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public List<PostDto> searchPosts(String keyword) {
-       return postRepository.searchAllPostByTitle("%"+keyword+"%")
-               .stream()
-               .map(post -> modelMapper.map(post,PostDto.class))
-               .collect(Collectors.toList());
+        return postRepository.searchAllPostByTitle("%" + keyword + "%")
+                .stream()
+                .map(post -> modelMapper.map(post, PostDto.class))
+                .collect(Collectors.toList());
     }
 
     @Override
     public PostPagingResponse getAllPostsWithPagingAndSorting(Integer pageNumber, Integer pageSize, String sortBy) {
-        Pageable pageRequest = PageRequest.of(pageNumber, pageSize, Sort.by(sortBy).descending());
+        Pageable pageRequest = PageRequest.of(pageNumber, pageSize, Sort.by(sortBy).descending()); //=> For Descending order
+        // Pageable pageRequest = PageRequest.of(pageNumber, pageSize, Sort.by(sortBy)); // => For Ascending order
         Page<Post> postPage = postRepository.findAll(pageRequest);
 
         List<PostDto> postDtoList = postPage.getContent()

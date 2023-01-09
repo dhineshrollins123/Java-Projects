@@ -2,6 +2,7 @@ package com.blogging.entities;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import javax.persistence.*;
 
@@ -9,12 +10,14 @@ import javax.persistence.*;
 @Setter
 @Entity
 @Table(name = "comments")
+@ToString
 public class Comment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int commentId;
 
+    @Column(length = 10000)
     private String content;
 
     @ManyToOne

@@ -4,11 +4,8 @@ import com.blogging.entities.Comment;
 import com.blogging.entities.Post;
 import com.blogging.exceptions.ResourceNotFoundException;
 import com.blogging.payloads.CommentDto;
-import com.blogging.payloads.PostDto;
-import com.blogging.payloads.UserDto;
 import com.blogging.repositories.CommentRepository;
 import com.blogging.repositories.PostRepository;
-import com.blogging.repositories.UserRepository;
 import com.blogging.services.CommentService;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -26,13 +23,18 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public CommentDto createComment(CommentDto commentDto,Integer postId) {
 
+        System.out.println("Comment service dto object : "+commentDto.toString());
+
         Post post = postRepository.findById(postId).orElseThrow(() ->
                 new ResourceNotFoundException("Post", "post id", postId));
 
         Comment comment = modelMapper.map(commentDto, Comment.class);
         comment.setPost(post);
-        comment.setUser(post.getUser());
+      //  comment.setUser(post.getUser());
         Comment savedComment = commentRepository.save(comment);
+
+        System.out.println("Comment service entity object : "+savedComment.toString());
+
         return modelMapper.map(savedComment, CommentDto.class);
     }
 

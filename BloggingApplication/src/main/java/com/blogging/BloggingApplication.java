@@ -3,6 +3,8 @@ package com.blogging;
 import com.blogging.config.AppConstants;
 import com.blogging.entities.Role;
 import com.blogging.repositories.RoleRepository;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -11,6 +13,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import javax.sql.DataSource;
 import java.util.List;
 
 @SpringBootApplication
@@ -22,6 +25,8 @@ public class BloggingApplication implements CommandLineRunner {
 	@Autowired
 	private RoleRepository roleRepository;
 
+	private String dbUrl;
+
 	public static void main(String[] args) {
 		SpringApplication.run(BloggingApplication.class, args);
 	}
@@ -29,6 +34,19 @@ public class BloggingApplication implements CommandLineRunner {
 	@Bean
 	public ModelMapper modelMapper(){
 		return new ModelMapper();
+	}
+
+	private DataSource dataSource;
+
+	public DataSource getDataSource() {
+
+		if(dbUrl == null){
+			return new HikariDataSource();
+		}else {
+			HikariConfig config = new HikariConfig();
+			config.setJdbcUrl(dbUrl);
+			return new HikariDataSource(config);
+		}
 	}
 
 	@Override

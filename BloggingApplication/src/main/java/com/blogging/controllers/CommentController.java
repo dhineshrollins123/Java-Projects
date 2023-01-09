@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api")
@@ -41,13 +42,13 @@ public class CommentController {
     public ResponseEntity<UserDto> getParticularUser(@RequestParam Integer userId){
         UserDto user = commentService.getUserById(userId);
         return new ResponseEntity<>(user, HttpStatus.OK);
-    }
-
-    @GetMapping(value = "/list")
-    public ResponseEntity<List<UserDto>> retrieveAllUsers(){
-        List<UserDto> users = commentService.getAllUsers();
-        return new ResponseEntity<>(users, HttpStatus.OK);
     }*/
+
+//    @GetMapping(value = "/comments/list")
+//    public ResponseEntity<List<CommentDto>> retrieveAllComments(){
+//        List<CommentDto> users = commentService.();
+//        return new ResponseEntity<>(users, HttpStatus.OK);
+//    }
 
 }
 
